@@ -14,7 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@color/black"
-            android:fontFamily="@font/biorhyme_bold"
+            android:fontFamily="@font/alegreya_sc_bold"
             android:paddingStart="30dp"
             android:text="@string/app_name"
             android:textColor="@color/white"
@@ -30,7 +30,7 @@
             android:layout_height="40dp"
             app:layout_constraintBottom_toBottomOf="@+id/toolBar"
             app:layout_constraintEnd_toEndOf="@+id/toolBar"
-            app:layout_constraintHorizontal_bias="0.47"
+            app:layout_constraintHorizontal_bias="0.40"
             app:layout_constraintStart_toStartOf="@+id/toolBar"
             app:layout_constraintTop_toTopOf="@+id/toolBar"
             app:srcCompat="@drawable/iv_shopping_bag" />

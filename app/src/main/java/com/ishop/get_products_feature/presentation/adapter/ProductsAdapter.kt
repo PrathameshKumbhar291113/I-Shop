@@ -2,36 +2,18 @@ package com.ishop.get_products_feature.presentation.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.AsyncListDiffer
-import androidx.recyclerview.widget.DiffUtil
+import android.widget.Filter
+import android.widget.Filterable
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.ishop.R
 import com.ishop.databinding.ItemProductBinding
 import com.ishop.network.models.GetProductsResponse
+import java.util.Locale
 
-class ProductsAdapter() : RecyclerView.Adapter<ProductsAdapter.ProductsViewHolder>() {
+class ProductsAdapter(private val initialProducts: List<GetProductsResponse>) : RecyclerView.Adapter<ProductsAdapter.ProductsViewHolder>(), Filterable {
 
-    companion object {
-        private val diffUtilComparator = object : DiffUtil.ItemCallback<GetProductsResponse>() {
-            override fun areItemsTheSame(
-                oldItem: GetProductsResponse,
-                newItem: GetProductsResponse
-            ): Boolean {
-                return oldItem.productName == newItem.productName
-            }
-
-            override fun areContentsTheSame(
-                oldItem: GetProductsResponse,
-                newItem: GetProductsResponse
-            ): Boolean {
-                return oldItem == newItem
-            }
-
-        }
-    }
-
-    val differ = AsyncListDiffer(this, diffUtilComparator)
+    private var filteredProducts: List<GetProductsResponse> = initialProducts
 
     inner class ProductsViewHolder(
         val binding: ItemProductBinding
@@ -40,7 +22,7 @@ class ProductsAdapter() : RecyclerView.Adapter<ProductsAdapter.ProductsViewHolde
 
             getProductsResponse.image?.let {
                 if (it.isNullOrEmpty()) {
-                    binding.productIcon.load(R.drawable.iv_shopping_bag)
+                    binding.productIcon.load(R.drawable.iv_i_shop_logo_white)
                 } else {
                     binding.productIcon.load(getProductsResponse.image)
                 }
@@ -48,7 +30,8 @@ class ProductsAdapter() : RecyclerView.Adapter<ProductsAdapter.ProductsViewHolde
 
             binding.productName.text = getProductsResponse.productName?.toString()
             binding.productType.text = getProductsResponse.productType?.toString()
-            binding.productPrice.text = getProductsResponse.price?.toString()
+            binding.productPrice.text = "₹${getProductsResponse.price?.toString()}/-"
+            binding.productTax.text = "Tax: ${getProductsResponse.tax?.toString()}%"
 
 
         }
@@ -60,8 +43,37 @@ class ProductsAdapter() : RecyclerView.Adapter<ProductsAdapter.ProductsViewHolde
         )
     }
 
-    override fun getItemCount(): Int = differ.currentList.size
+    override fun getItemCount(): Int = filteredProducts.size
 
     override fun onBindViewHolder(holder: ProductsViewHolder, position: Int) =
-        holder.bind(differ.currentList[position])
+        holder.bind(filteredProducts[position])
+
+
+    // Implement Filterable interface
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(charSequence: CharSequence?): FilterResults {
+                val charString = charSequence.toString().toLowerCase(Locale.getDefault())
+                filteredProducts = if (charString.isEmpty()) {
+                    initialProducts
+                } else {
+                    initialProducts.filter {
+                        it.productName?.toLowerCase(Locale.getDefault())?.contains(charString) == true
+                    }
+                }
+
+                val filterResults = FilterResults()
+                filterResults.values = filteredProducts
+                return filterResults
+            }
+
+            override fun publishResults(
+                charSequence: CharSequence?,
+                filterResults: FilterResults?
+            ) {
+                filteredProducts = filterResults?.values as List<GetProductsResponse>
+                notifyDataSetChanged()
+            }
+        }
+    }
 }
