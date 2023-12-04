@@ -1,7 +1,6 @@
 package com.ishop.get_products_feature.presentation.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,9 +18,11 @@ import com.ishop.get_products_feature.presentation.adapter.ProductsAdapter
 import com.ishop.get_products_feature.presentation.viewmodels.GetProductsViewModel
 import com.ishop.network.models.GetProductsResponse
 import com.ishop.utils.NetworkResult
+import dagger.hilt.android.AndroidEntryPoint
 import org.jetbrains.anko.image
 import splitties.fragments.start
 
+@AndroidEntryPoint
 class GetProductListFragment : Fragment() {
     private lateinit var binding: FragmentGetProductListBinding
     private lateinit var productAdapter: ProductsAdapter
@@ -58,7 +59,6 @@ class GetProductListFragment : Fragment() {
                 is NetworkResult.Loading -> {}
                 is NetworkResult.Success -> {
                     it.data?.body()?.let { productList ->
-                        Log.e("Prathamesh", "setUpObservers: ${productList.toString()}")
                         setupRecyclerView(productList)
                     }
                 }
@@ -96,12 +96,10 @@ class GetProductListFragment : Fragment() {
     private fun setUpSearchFeature() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // Handle search query submission (if needed)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Update the adapter's filter when the search text changes
                 productAdapter.filter.filter(newText)
                 return true
             }
@@ -123,5 +121,9 @@ class GetProductListFragment : Fragment() {
             })
     }
 
+    override fun onResume() {
+        super.onResume()
+        productsViewModel.getProductsList()
+    }
 
 }

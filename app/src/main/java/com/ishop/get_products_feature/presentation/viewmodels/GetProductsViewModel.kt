@@ -25,7 +25,7 @@ class GetProductsViewModel @Inject constructor(
         getProductsList()
     }
 
-    private fun getProductsList() {
+    fun getProductsList() {
         getProductsUseCase().onEach {
             when (it) {
                 is NetworkResult.Loading -> {}
