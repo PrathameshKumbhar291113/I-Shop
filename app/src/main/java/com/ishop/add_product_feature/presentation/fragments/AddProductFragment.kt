@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,16 +56,19 @@ class AddProductFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupUi()
         setUpObservers()
-        if (hasReadExternalStoragePermission()){
-            selectImageAndSetinImageView()
-        }else{
+        if (hasReadExternalStoragePermission()) {
+            selectImageAndSetInImageView()
+        } else {
             requestReadExternalStoragePermission()
         }
 
     }
 
     private fun setupUi() {
-        selectImageAndSetinImageView()
+
+        binding.imageSelected.setOnClickListener {
+            selectImageAndSetInImageView()
+        }
 
         binding.addProductButton.setOnClickListener {
             val productDetails = createAddProductRequestBody(
@@ -76,7 +78,6 @@ class AddProductFragment : Fragment() {
                 tax = binding.productTaxValue.text.toString(),
                 image = addProductsViewModel.image.value
             )
-            Log.e("Prathamesh", "setupUi: ${productDetails.toString()}")
             addProductsViewModel.addProducts(productDetails)
         }
     }
@@ -90,28 +91,29 @@ class AddProductFragment : Fragment() {
 
                 is NetworkResult.Success -> {
                     it.data?.let { response ->
-                        Toast.makeText(requireContext(), "${response.body()?.message}", Toast.LENGTH_SHORT).show()
-                        Log.e("Prathamesh", "setUpObservers: Product Details:- ${response.body()?.productDetails} , Product Id:- ${response.body()?.productId}, Product Success:- ${response.body()?.success}")
-                        if (response.body()?.success!!) {
+                        Toast.makeText(
+                            requireContext(),
+                            "${response.body()?.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        if (response.body()?.success == true) {
                             requireActivity().finish()
                         }
                     }
                 }
 
                 is NetworkResult.Error -> {
-                    Log.e("Prathamesh", "setUpObservers: Product Details:- ${it.data?.body()?.productDetails} , Product Id:- ${it.data?.body()?.productId}, Product Success:- ${it.data?.body()?.success} , Error Mesaage:- ${it.message.toString()}")
                 }
             }
         }
     }
 
 
-    private fun selectImageAndSetinImageView() {
-        binding.imageSelected.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            startActivityForResult(intent, PICK_IMAGE_REQUEST)
-        }
+    private fun selectImageAndSetInImageView() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, PICK_IMAGE_REQUEST)
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -147,7 +149,7 @@ class AddProductFragment : Fragment() {
     private fun hasReadExternalStoragePermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             requireContext(),
-           READ_EXTERNAL_STORAGE
+            READ_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -159,13 +161,6 @@ class AddProductFragment : Fragment() {
         )
     }
 
-    private fun performImageSelection() {
-        // The logic to perform image selection can go here
-        val intent = Intent(Intent.ACTION_PICK)
-        intent.type = "image/*"
-        startActivityForResult(intent, PICK_IMAGE_REQUEST)
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -173,10 +168,8 @@ class AddProductFragment : Fragment() {
     ) {
         if (requestCode == REQUEST_READ_EXTERNAL_STORAGE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, perform the image selection logic here
-                performImageSelection()
+                selectImageAndSetInImageView()
             } else {
-                // Permission denied, handle accordingly (e.g., show a message to the user)
                 Toast.makeText(
                     requireContext(),
                     "Permission denied. Cannot perform image selection.",
