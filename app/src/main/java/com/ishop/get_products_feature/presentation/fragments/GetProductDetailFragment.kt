@@ -18,7 +18,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class GetProductDetailFragment : Fragment() {
     private lateinit var binding: FragmentGetProductDetailBinding
     private val getProductsDetailsViewModel: GetProductDetailsViewModel by activityViewModels()
-    private lateinit var getProductDetail : GetProductsResponse
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -39,11 +39,10 @@ class GetProductDetailFragment : Fragment() {
     }
 
     private fun setUpUi() {
-        getProductDetail = arguments?.getParcelable<GetProductsResponse>(GetProductListFragment.PRODUCT_DATA)!!
+        getProductsDetailsViewModel.setProductDetails(arguments?.getParcelable<GetProductsResponse>(GetProductListFragment.PRODUCT_DATA)!!)
     }
 
     private fun setUpObservers() {
-        getProductsDetailsViewModel.setProductDetails(getProductDetail)
         getProductsDetailsViewModel.productDetails.observe(viewLifecycleOwner){
             it?.let {
                 if (it.image.isNullOrEmpty()) {

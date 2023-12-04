@@ -30,7 +30,7 @@ class GetProductListFragment : Fragment() {
     private val productsViewModel: GetProductsViewModel by activityViewModels()
 
     companion object{
-        const val PRODUCT_DATA = "agent_data"
+        const val PRODUCT_DATA = "product_data"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
