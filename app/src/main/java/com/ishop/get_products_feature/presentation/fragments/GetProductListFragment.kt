@@ -11,6 +11,7 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import com.ishop.R
 import com.ishop.add_product_feature.presentation.activity.AddProductActivity
 import com.ishop.databinding.FragmentGetProductListBinding
@@ -27,6 +28,10 @@ class GetProductListFragment : Fragment() {
     private lateinit var binding: FragmentGetProductListBinding
     private lateinit var productAdapter: ProductsAdapter
     private val productsViewModel: GetProductsViewModel by activityViewModels()
+
+    companion object{
+        const val PRODUCT_DATA = "agent_data"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,9 +113,17 @@ class GetProductListFragment : Fragment() {
 
 
     private fun setupRecyclerView(productList: List<GetProductsResponse>) {
-        productAdapter = ProductsAdapter(productList)
+        productAdapter = ProductsAdapter(productList, this::onClick)
         binding.productsRecyclerView.adapter = productAdapter
     }
+
+    private fun onClick(data: GetProductsResponse) {
+        val productDataBundle: Bundle = Bundle().apply {
+            putParcelable(PRODUCT_DATA, data)
+        }
+        findNavController().navigate(R.id.getProductDetailFragment, productDataBundle)
+    }
+
 
     private fun handleOnBackPress() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,

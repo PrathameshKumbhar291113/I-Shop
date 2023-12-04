@@ -11,7 +11,10 @@ import com.ishop.databinding.ItemProductBinding
 import com.ishop.network.models.GetProductsResponse
 import java.util.Locale
 
-class ProductsAdapter(private val initialProducts: List<GetProductsResponse>) : RecyclerView.Adapter<ProductsAdapter.ProductsViewHolder>(), Filterable {
+class ProductsAdapter(
+    private val initialProducts: List<GetProductsResponse>,
+    val onClick: (GetProductsResponse) -> Unit
+) : RecyclerView.Adapter<ProductsAdapter.ProductsViewHolder>(), Filterable {
 
     private var filteredProducts: List<GetProductsResponse> = initialProducts
 
@@ -33,6 +36,9 @@ class ProductsAdapter(private val initialProducts: List<GetProductsResponse>) : 
             binding.productPrice.text = "₹${getProductsResponse.price?.toString()}/-"
             binding.productTax.text = "Tax: ${getProductsResponse.tax?.toString()}%"
 
+            binding.cardContainer.setOnClickListener {
+                onClick(getProductsResponse)
+            }
 
         }
     }
@@ -58,7 +64,8 @@ class ProductsAdapter(private val initialProducts: List<GetProductsResponse>) : 
                     initialProducts
                 } else {
                     initialProducts.filter {
-                        it.productName?.toLowerCase(Locale.getDefault())?.contains(charString) == true
+                        it.productName?.toLowerCase(Locale.getDefault())
+                            ?.contains(charString) == true
                     }
                 }
 
